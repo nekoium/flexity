@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flexity Demo — Live board</title>
+    <meta name="description" content="A live Flexity board: stackable cards, shadows, references, fold, highlight, switch column↔card, undo, and the JSON underneath." />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="container nav__inner">
+        <a href="index.html" class="nav__brand">
+          <svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="2" y="3" width="6" height="18" rx="1.5" fill="var(--accent)" />
+            <rect x="10" y="3" width="6" height="11" rx="1.5" fill="var(--ink)" opacity="0.85" />
+            <rect x="18" y="3" width="4" height="7" rx="1.5" fill="var(--ink-muted)" />
+          </svg>
+          Flexity
+        </a>
+        <div class="nav__spacer"></div>
+        <nav class="nav__links">
+          <a href="index.html" class="nav__link">← Back to overview</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="demo-app">
+      <!-- Toolbar -->
+      <div class="demo-toolbar">
+        <span class="demo-toolbar__title" id="board-title">Demo board</span>
+        <span class="tag tag--accent" id="board-count">0 cards</span>
+        <span class="demo-toolbar__spacer"></span>
+        <span class="demo-toolbar__hint">
+          <span class="kbd">Ctrl+Z</span> undo · <span class="kbd">Ctrl+Shift+Z</span> redo · <span class="kbd">Alt+click</span> highlight · drag cards to move
+        </span>
+        <button class="btn btn--subtle btn--sm" id="btn-json" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 4a4 4 0 0 0-4 4v8a4 4 0 0 0 4 4M16 4a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4" stroke-linecap="round"/></svg>
+          JSON
+        </button>
+        <button class="btn btn--subtle btn--sm" id="btn-undo" title="Undo (Ctrl+Z)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 7L4 12l5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12h11a5 5 0 0 1 0 10h-1" stroke-linecap="round"/></svg>
+          Undo
+        </button>
+        <button class="btn btn--subtle btn--sm" id="btn-redo" title="Redo (Ctrl+Shift+Z)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 7l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12H9a5 5 0 0 0 0 10h1" stroke-linecap="round"/></svg>
+          Redo
+        </button>
+        <button class="btn btn--primary btn--sm" id="btn-add-column">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          Add column
+        </button>
+      </div>
+
+      <!-- Board surface -->
+      <div class="board-scroll">
+        <div class="board" id="board"></div>
+      </div>
+
+      <!-- JSON drawer (hidden by default) -->
+      <div class="json-drawer" id="json-drawer" hidden>
+        <pre id="json-out"></pre>
+      </div>
+    </main>
+
+    <!-- Toast + modal mounts -->
+    <div class="toast-wrap" id="toast-wrap" aria-live="polite"></div>
+
+    <script src="demo.js"></script>
+  </body>
+</html>

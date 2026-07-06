@@ -3,10 +3,214 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Flexity</title>
+    <title>Flexity — One model. Many views.</title>
+    <meta name="description" content="Flexity is a JSON-native, markdown-first information model. One composable structure, viewed as outlines, trackers, or SOPs without changing the data." />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <header class="nav">
+      <div class="container nav__inner">
+        <a href="index.html" class="nav__brand">
+          <svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="2" y="3" width="6" height="18" rx="1.5" fill="var(--accent)" />
+            <rect x="10" y="3" width="6" height="11" rx="1.5" fill="var(--ink)" opacity="0.85" />
+            <rect x="18" y="3" width="4" height="7" rx="1.5" fill="var(--ink-muted)" />
+          </svg>
+          Flexity
+        </a>
+        <div class="nav__spacer"></div>
+        <nav class="nav__links">
+          <a href="#features" class="nav__link nav__link--secondary">Features</a>
+          <a href="#model" class="nav__link nav__link--secondary">The model</a>
+          <a href="demo.html" class="btn btn--primary btn--sm">Try the demo</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- ===== Hero ===== -->
+      <section class="hero">
+        <div class="container hero__grid">
+          <div>
+            <p class="eyebrow">JSON Native · Markdown First</p>
+            <h1 class="hero__title">One model.<br />Many views.</h1>
+            <p class="lead hero__desc">
+              Flexity is a composable information model inspired by Kanban. Capture once —
+              then re-view the same data as a board, a tree, or an outline without
+              re-entering a thing. Tasks, projects, ideas, SOPs: one model, many lenses.
+            </p>
+            <div class="hero__cta">
+              <a href="demo.html" class="btn btn--primary">
+                Try the demo
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+              <a href="#model" class="btn btn--ghost">How the model works</a>
+            </div>
+          </div>
+
+          <!-- Morphing view widget — index.js renders into #viewer-pane -->
+          <div class="viewer" id="viewer">
+            <div class="viewer__row">
+              <span class="viewer__label">Use case</span>
+              <div class="viewer__tabs" role="tablist" aria-label="Choose a use case">
+                <button class="viewer__tab" role="tab" aria-selected="true" data-case="tasks">Tasks</button>
+                <button class="viewer__tab" role="tab" aria-selected="false" data-case="project">Project</button>
+                <button class="viewer__tab" role="tab" aria-selected="false" data-case="ideas">Ideas</button>
+                <button class="viewer__tab" role="tab" aria-selected="false" data-case="sop">SOP</button>
+              </div>
+            </div>
+            <div class="viewer__row">
+              <span class="viewer__label">View as</span>
+              <div class="viewer__tabs" role="tablist" aria-label="Render the data as">
+                <button class="viewer__tab" role="tab" aria-selected="true" data-view="board">Board</button>
+                <button class="viewer__tab" role="tab" aria-selected="false" data-view="tree">Tree</button>
+                <button class="viewer__tab" role="tab" aria-selected="false" data-view="outline">Outline</button>
+                <button class="viewer__tab" role="tab" aria-selected="false" data-view="json">JSON</button>
+              </div>
+            </div>
+            <p class="viewer__hint" id="viewer-case-label">GTD-style task tracking</p>
+            <div class="viewer__pane" id="viewer-pane"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== What it is ===== -->
+      <section class="section section--tight" id="what">
+        <div class="container">
+          <p class="eyebrow">What Flexity is</p>
+          <h2>A structure that doesn't fight the task.</h2>
+          <p class="lead" style="margin-top: var(--sp-3);">
+            Knowledge work keeps reshaping itself — today's project plan is tomorrow's
+            checklist, then next week's SOP. Flexity holds one recursively composable
+            object model underneath all of them, so the view follows the work instead of
+            the other way around.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== Stacking model ===== -->
+      <section class="section section--tight" id="model">
+        <div class="container">
+          <p class="eyebrow">The model</p>
+          <h2>Four elements. Clear stacking rules.</h2>
+          <p class="muted" style="margin: var(--sp-2) 0 var(--sp-5); max-width: 60ch;">
+            Everything is JSON. Everything composes. The rules below are the whole
+            grammar — what each element can host.
+          </p>
+          <div class="rules">
+            <div class="rule">
+              <div class="rule__h">Board <span class="rule__tag">root</span></div>
+              <ul class="rule__list">
+                <li>Hosts columns &amp; trays</li>
+                <li>One board = one file</li>
+                <li>The root container</li>
+              </ul>
+            </div>
+            <div class="rule">
+              <div class="rule__h">Column</div>
+              <ul class="rule__list">
+                <li>Hosts trays &amp; notes</li>
+                <li>Takes a full vertical slot</li>
+                <li>Cannot be nested — board-level only</li>
+              </ul>
+            </div>
+            <div class="rule">
+              <div class="rule__h">Tray</div>
+              <ul class="rule__list">
+                <li>Hosts trays &amp; notes</li>
+                <li>Recursively composable</li>
+                <li>Flexible height — a pinned tray is a column</li>
+              </ul>
+            </div>
+            <div class="rule">
+              <div class="rule__h">Note</div>
+              <ul class="rule__list">
+                <li>A markdown slip with full markdown</li>
+                <li>Stacks with spacing, like list levels</li>
+                <li>Cannot host other notes</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Features ===== -->
+      <section class="section" id="features">
+        <div class="container">
+          <p class="eyebrow">Features</p>
+          <h2>Beyond a plain Kanban.</h2>
+          <p class="muted" style="margin: var(--sp-2) 0 var(--sp-6); max-width: 60ch;">
+            Standard boards stop at columns and notes. Flexity adds the mechanics
+            knowledge work actually needs.
+          </p>
+          <div class="features">
+            <article class="feature">
+              <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6" stroke-linecap="round"/><path d="M14 10l3 3-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <h3 class="feature__title">Stackable notes</h3>
+              <p class="feature__desc">Notes stack under notes to any depth. Break a task into sub-notes without leaving the board or duplicating data.</p>
+            </article>
+            <article class="feature">
+              <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v16M9 4v16M14 4v16" stroke-linecap="round" stroke-dasharray="2 3"/><rect x="4" y="4" width="14" height="5" rx="1" fill="currentColor" opacity="0.15" stroke="none"/></svg></div>
+              <h3 class="feature__title">Shadows</h3>
+              <p class="feature__desc">Cast a note as a read-only pointer into another column — keep a task in its project while it shows up in today's work. Hover either to highlight the pair.</p>
+            </article>
+            <article class="feature">
+              <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17H7a4 4 0 1 1 0-8 5 5 0 0 1 9.9-1 4 4 0 0 1-.4 8H9" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 12v5" stroke-linecap="round"/></svg></div>
+              <h3 class="feature__title">Note references</h3>
+              <p class="feature__desc">Link notes by title inline, or pick one from a list. References stay live — move the host and the link follows.</p>
+            </article>
+            <article class="feature">
+              <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="11" height="6" rx="1.5"/><path d="M18 17h3" stroke-linecap="round"/></svg></div>
+              <h3 class="feature__title">Foldable items</h3>
+              <p class="feature__desc">Collapse any column or board to its title. Keep the structure visible without the noise when you need the overview.</p>
+            </article>
+            <article class="feature">
+              <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 4l-2 16" stroke-linecap="round"/></svg></div>
+              <h3 class="feature__title">Switch column ⇄ tray</h3>
+              <p class="feature__desc">A column is basically a tray that can't be nested. Promote a root tray to a column to focus on it, demote it back when the moment passes.</p>
+            </article>
+            <article class="feature">
+              <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14a8 8 0 1 1 16 0" stroke-linecap="round"/><path d="M12 14l4-4" stroke-linecap="round"/><rect x="3.5" y="13" width="17" height="7" rx="3.5" fill="currentColor" opacity="0.12" stroke="none"/></svg></div>
+              <h3 class="feature__title">Highlight to focus</h3>
+              <p class="feature__desc">Mark the notes that matter today. One keystroke toggles a calm highlight so the important surfaces above the rest.</p>
+            </article>
+            <article class="feature">
+              <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/><path d="M18 18l2 2-2 2" stroke-linecap="round" stroke-linejoin="round" transform="translate(-1 -2)"/></svg></div>
+              <h3 class="feature__title">Markdown notes</h3>
+              <p class="feature__desc">Each note is markdown by itself — or a mirror of another note in your vault. The body is prose, not a label.</p>
+            </article>
+            <article class="feature">
+              <div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6a2 2 0 0 0 2 2h2v4l4-4h4a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 9h6M8 12h4" stroke-linecap="round"/></svg></div>
+              <h3 class="feature__title">Undo, always</h3>
+              <p class="feature__desc">Every mutation goes through history. <span class="kbd">Ctrl+Z</span> walks it back. Experiment without consequence.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CTA ===== -->
+      <section class="section cta">
+        <div class="container">
+          <h2 class="cta__title">See the model work.</h2>
+          <p class="lead cta__desc">
+            A live board with every feature above — stack notes, cast shadows,
+            switch a tray into a column, then watch the JSON underneath.
+          </p>
+          <a href="demo.html" class="btn btn--primary">
+            Open the demo
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__inner">
+        <span>Flexity — a composable information model.</span>
+        <span class="muted">JSON Native · Markdown First · Kanban Inspired</span>
+      </div>
+    </footer>
+
     <script src="index.js"></script>
   </body>
 </html>
