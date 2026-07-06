@@ -22,7 +22,7 @@
         <nav class="nav__links">
           <a href="#features" class="nav__link nav__link--secondary">Features</a>
           <a href="#model" class="nav__link nav__link--secondary">The model</a>
-          <a href="demo.html" class="btn btn--primary btn--sm">Try the demo</a>
+          <a href="demo.html" class="btn btn--primary btn--sm">Open live board</a>
         </nav>
       </div>
     </header>
@@ -30,24 +30,27 @@
     <main>
       <!-- ===== Hero ===== -->
       <section class="hero">
-        <div class="container hero__grid">
-          <div>
-            <p class="eyebrow">JSON Native · Markdown First</p>
-            <h1 class="hero__title">One model.<br />Many views.</h1>
-            <p class="lead hero__desc">
-              Flexity is a composable information model inspired by Kanban. Capture once —
-              then re-view the same data as a board, a tree, or an outline without
-              re-entering a thing. Tasks, projects, ideas, SOPs: one model, many lenses.
-            </p>
-            <div class="hero__cta">
-              <a href="demo.html" class="btn btn--primary">
-                Try the demo
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </a>
-              <a href="#model" class="btn btn--ghost">How the model works</a>
-            </div>
+        <div class="container">
+          <p class="eyebrow">JSON Native · Markdown First</p>
+          <h1 class="hero__title">One model.<br />Many views.</h1>
+          <p class="lead hero__desc">
+            Flexity is a composable information model inspired by Kanban. Capture once —
+            then re-view the same data as a board, a tree, or an outline without
+            re-entering a thing. Tasks, projects, ideas, SOPs: one model, many lenses.
+          </p>
+          <div class="hero__cta">
+            <a href="demo.html" class="btn btn--primary">
+              Open the live board
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#model" class="btn btn--ghost">How the model works</a>
           </div>
+        </div>
+      </section>
 
+      <!-- ===== Showcase ===== -->
+      <section class="section section--tight">
+        <div class="container">
           <!-- Morphing view widget — index.js renders into #viewer-pane -->
           <div class="viewer" id="viewer">
             <div class="viewer__row">
@@ -70,6 +73,10 @@
             </div>
             <p class="viewer__hint" id="viewer-case-label">GTD-style task tracking</p>
             <div class="viewer__pane" id="viewer-pane"></div>
+            <div class="viewer__resize" id="viewer-resize" title="Drag to resize">
+              <span class="viewer__resize-hint">Drag to resize</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15l-6 6M21 9l-12 12M15 21l3-3" stroke-linecap="round"/></svg>
+            </div>
           </div>
         </div>
       </section>
@@ -197,7 +204,7 @@
             switch a tray into a column, then watch the JSON underneath.
           </p>
           <a href="demo.html" class="btn btn--primary">
-            Open the demo
+            Open the live board
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
         </div>

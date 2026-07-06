@@ -30,7 +30,7 @@
           { type: "column", title: "Today", children: [
             { type: "note", body: "Review PR #42", children: [
               { type: "note", body: "**Backend auth changes.**" },
-              { type: "note", body: "Check `auth.ts` for the new token flow." }
+              { type: "note", body: "## Checklist\n1. Token refresh\n2. Session invalidation\n3. Error handling" }
             ]},
             { type: "note", body: "Reply to design feedback", children: [
               { type: "note", body: "- [ ] Address contrast\n- [x] Update mockups" }
@@ -38,7 +38,7 @@
           ]},
           { type: "tray", title: "Next", children: [
             { type: "note", body: "Draft Q3 roadmap", children: [
-              { type: "note", body: "See [planning doc](https://example.com)." }
+              { type: "note", body: "Three themes for Q3:\n\n1. Performance\n2. Onboarding\n3. Mobile\n\nSee [planning doc](https://example.com)." }
             ]},
             { type: "note", body: "Migrate docs" }
           ]},
@@ -46,6 +46,13 @@
             { type: "note", body: "Vendor contract", children: [
               { type: "note", body: "On legal since *Monday*." }
             ]}
+          ]},
+          { type: "tray", title: "Someday", children: [
+            { type: "note", body: "Learn Rust" },
+            { type: "note", body: "Write a CLI tool" }
+          ]},
+          { type: "tray", title: "Errands", children: [
+            { type: "note", body: "- [ ] Pick up dry cleaning\n- [ ] Buy stamps" }
           ]},
           { type: "tray", title: "Done", children: [
             { type: "note", body: "Ship v2.1", children: [
@@ -68,7 +75,7 @@
               { type: "note", body: "Docs" }
             ]},
             { type: "note", body: "Stakeholder interviews", children: [
-              { type: "note", body: "Schedule ~5 calls." }
+              { type: "note", body: "Schedule ~5 calls.\n\nFocus on *pain points*, not feature requests." }
             ]}
           ]},
           { type: "column", title: "In progress", children: [
@@ -77,7 +84,7 @@
               { type: "note", body: "Type scale" }
             ]},
             { type: "note", body: "Homepage hero", children: [
-              { type: "note", body: "**Hero copy** + CTA." }
+              { type: "note", body: "## Variants\n| Option | CTA |\n|---|---|\n| A | Start free |\n| B | Book a demo |\n| C | See pricing |" }
             ]}
           ]},
           { type: "column", title: "Review", children: [
@@ -137,7 +144,7 @@
           { type: "tray", title: "2. Build", children: [
             { type: "note", body: "Implement" },
             { type: "note", body: "Write tests", children: [
-              { type: "note", body: "Happy path + one edge case." }
+              { type: "note", body: "1. Happy path\n2. Auth failure\n3. Rate limit edge case" }
             ]}
           ]},
           { type: "tray", title: "3. Review", children: [
@@ -149,6 +156,14 @@
               { type: "note", body: "Squash-merge to main." }
             ]},
             { type: "note", body: "Close the issue" }
+          ]},
+          { type: "tray", title: "5. Monitor", children: [
+            { type: "note", body: "Watch error logs for 24h" },
+            { type: "note", body: "Check metrics dashboard" }
+          ]},
+          { type: "tray", title: "6. Document", children: [
+            { type: "note", body: "Update changelog" },
+            { type: "note", body: "Write retro note" }
           ]}
         ]
       }
@@ -188,7 +203,7 @@
   // ---------------------------------------------------------------------
   // Markdown renderer (compact, for the mini preview)
   // Supports: headings (## / ###), bold, italic, strikethrough, inline code,
-  // links, unordered lists, and checkboxes.
+  // links, unordered lists, numbered lists, checkboxes, tables, and paragraphs.
   // ---------------------------------------------------------------------
   function md(text) {
     if (!text) return "";
@@ -201,46 +216,80 @@
         .replace(/~~([^~]+)~~/g, "<del>$1</del>");
     const lines = String(text).split("\n");
     let html = "";
-    let inUL = false, inCheck = false;
+    let i = 0;
+    let inUL = false, inOL = false, inCheck = false;
     const closeLists = () => {
       if (inUL) { html += "</ul>"; inUL = false; }
+      if (inOL) { html += "</ol>"; inOL = false; }
       if (inCheck) { html += "</ul>"; inCheck = false; }
     };
-    for (const raw of lines) {
-      const line = esc(raw);
-      const h3 = line.match(/^##\s+(.+)$/);
+    while (i < lines.length) {
+      const line = esc(lines[i]);
+      // Headings
       const h4 = line.match(/^###\s+(.+)$/);
-      if (h4) { closeLists(); html += `<h4>${inline(h4[1])}</h4>`; continue; }
-      if (h3) { closeLists(); html += `<h3>${inline(h3[1])}</h3>`; continue; }
+      const h3 = line.match(/^##\s+(.+)$/);
+      if (h4) { closeLists(); html += `<h4>${inline(h4[1])}</h4>`; i++; continue; }
+      if (h3) { closeLists(); html += `<h3>${inline(h3[1])}</h3>`; i++; continue; }
+      // Table: header row followed by separator row
+      if (/^\s*\|.*\|\s*$/.test(lines[i]) && i + 1 < lines.length && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i + 1])) {
+        closeLists();
+        const headerCells = lines[i].split("|").slice(1, -1).map((c) => c.trim());
+        let rows = "";
+        i += 2;
+        while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+          const cells = lines[i].split("|").slice(1, -1).map((c) => inline(esc(c).trim()));
+          rows += `<tr>${cells.map((c) => `<td>${c}</td>`).join("")}</tr>`;
+          i++;
+        }
+        const thead = `<thead><tr>${headerCells.map((c) => `<th>${inline(esc(c))}</th>`).join("")}</tr></thead>`;
+        html += `<table>${thead}<tbody>${rows}</tbody></table>`;
+        continue;
+      }
+      // Checkboxes
       const check = line.match(/^\s*-\s+\[([ x])\]\s+(.+)$/);
       if (check) {
         if (inUL) { html += "</ul>"; inUL = false; }
+        if (inOL) { html += "</ol>"; inOL = false; }
         if (!inCheck) { html += '<ul class="md-check">'; inCheck = true; }
         const done = check[1] === "x";
         html += `<li class="md-check-item${done ? " is-done" : ""}"><span class="md-box">${done ? "✓" : ""}</span>${inline(check[2])}</li>`;
-        continue;
+        i++; continue;
       }
+      // Bullet list
       const li = line.match(/^\s*[-*]\s+(.+)$/);
       if (li) {
         if (inCheck) { html += "</ul>"; inCheck = false; }
+        if (inOL) { html += "</ol>"; inOL = false; }
         if (!inUL) { html += "<ul>"; inUL = true; }
         html += `<li>${inline(li[1])}</li>`;
-        continue;
+        i++; continue;
       }
+      // Numbered list
+      const ol = line.match(/^\s*\d+\.\s+(.+)$/);
+      if (ol) {
+        if (inCheck) { html += "</ul>"; inCheck = false; }
+        if (inUL) { html += "</ul>"; inUL = false; }
+        if (!inOL) { html += "<ol>"; inOL = true; }
+        html += `<li>${inline(ol[1])}</li>`;
+        i++; continue;
+      }
+      // Paragraph
       closeLists();
-      if (line.trim() === "") continue;
+      if (line.trim() === "") { i++; continue; }
       html += `<p>${inline(line)}</p>`;
+      i++;
     }
     closeLists();
     return html;
   }
 
   // ---------------------------------------------------------------------
-  // View: Board (mini Kanban)
-  // Columns stretch to full container height; trays size to their content.
-  // Notes are pure markdown rectangles. Sub-notes stack underneath the parent
-  // note with indentation — under but not inside, like markdown list levels.
-  // Empty trays have no placeholder.
+  // View: Board (mini Kanban with masonry trays)
+  // Root items flow horizontally first. Columns each take one slot.
+  // Root trays also take horizontal slots — but when there are more trays
+  // than available slots, they stack VERTICALLY in masonry columns.
+  // Minimum slots = num_columns + (1 if any root trays), enforced regardless
+  // of viewport width (horizontal scroll if narrower).
   // ---------------------------------------------------------------------
   function viewBoard() {
     const renderItem = (item) => {
@@ -256,17 +305,43 @@
       return `<div class="mininote-group"><div class="minicard">${body}</div>${subs}</div>`;
     };
 
-    const blocks = model().children
-      .map((child) => {
-        if (child.type === "column") {
-          const items = (child.children || []).map(renderItem).join("");
-          return `<div class="minicol"><div class="minicol__h">${esc(child.title)}</div><div class="minicol__body">${items}</div></div>`;
-        }
-        // tray at root — flexible height
-        return renderItem(child);
-      })
-      .join("");
-    return `<div class="miniboard">${blocks}</div>`;
+    const root = model().children;
+    const columns = root.filter((c) => c.type === "column");
+    const trays = root.filter((c) => c.type === "tray");
+
+    // Calculate slot count from the pane's current width.
+    // NOTE: measure `pane.clientWidth` (which persists across renders) — NOT
+    // `.viewer__scroll`, which is recreated by this very render() call and so
+    // would be stale/missing on first paint, causing trays to stack vertically
+    // even when there is enough horizontal room.
+    const SLOT_W = 200, GAP = 12;
+    const minSlots = columns.length + (trays.length > 0 ? 1 : 0);
+    const containerW = pane.clientWidth || 600;
+    const slots = Math.max(Math.floor((containerW + GAP) / (SLOT_W + GAP)), minSlots);
+
+    // Tray masonry groups: each group is a vertical stack of trays
+    let groupCount = 0;
+    if (trays.length > 0) {
+      groupCount = Math.min(Math.max(slots - columns.length, 1), trays.length);
+    }
+    const groups = Array.from({ length: groupCount }, () => []);
+    trays.forEach((t, i) => groups[i % groupCount].push(t));
+
+    // Board min-width: enforce minimum horizontal slots (scroll if viewport narrower)
+    const boardMinWidth = slots * SLOT_W + (slots - 1) * GAP;
+
+    // Render columns (each takes one horizontal slot, stretches to full height)
+    const colEls = columns.map((col) => {
+      const items = (col.children || []).map(renderItem).join("");
+      return `<div class="minicol"><div class="minicol__h">${esc(col.title)}</div><div class="minicol__body">${items}</div></div>`;
+    }).join("");
+
+    // Render tray masonry groups (each group takes one horizontal slot, trays stack vertically)
+    const groupEls = groups.map((g) =>
+      `<div class="minotray-stack">${g.map(renderItem).join("")}</div>`
+    ).join("");
+
+    return `<div class="miniboard" style="min-width:${boardMinWidth}px">${colEls}${groupEls}</div>`;
   }
 
   // ---------------------------------------------------------------------
@@ -348,6 +423,55 @@
       setView(list[next].dataset.view);
     });
   });
+
+  // Re-render board view on viewport resize (masonry slot recalculation)
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (currentView === "board") render();
+    }, 100);
+  });
+
+  // ---------------------------------------------------------------------
+  // Resize handle: drag to adjust the viewer pane width and height
+  // ---------------------------------------------------------------------
+  const resizeHandle = document.getElementById("viewer-resize");
+  const viewerPane = document.getElementById("viewer-pane");
+  const viewer = document.getElementById("viewer");
+  if (resizeHandle && viewerPane) {
+    let dragging = false, startX = 0, startY = 0, startW = 0, startH = 0;
+    const MIN_W = 300, MAX_W = 2400, MIN_H = 200, MAX_H = 1200;
+    resizeHandle.addEventListener("mousedown", (e) => {
+      dragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startW = viewer.offsetWidth;
+      startH = viewerPane.offsetHeight;
+      resizeHandle.classList.add("is-active");
+      document.body.style.userSelect = "none";
+      document.body.style.cursor = "nwse-resize";
+      e.preventDefault();
+    });
+    document.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const w = Math.max(MIN_W, Math.min(MAX_W, startW + dx));
+      const h = Math.max(MIN_H, Math.min(MAX_H, startH + dy));
+      viewer.style.width = w + "px";
+      viewer.style.maxWidth = w + "px";
+      viewerPane.style.height = h + "px";
+      if (currentView === "board") render();
+    });
+    document.addEventListener("mouseup", () => {
+      if (!dragging) return;
+      dragging = false;
+      resizeHandle.classList.remove("is-active");
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+    });
+  }
 
   // Initial render.
   render();
