@@ -1,5 +1,19 @@
 # Flexity
-Flexity is a JSON-native, markdown-first information model for knowledge management. Inspired by the Kanban system, Flexity provides a structured way to organize information into recursively composable objects that can be viewed as knowledge outlines, idea or project trackers, SOPs, or other interpretations without changing the underlying data.
+
+Flexity is a JSON-native, markdown-first framework for structuring notes composably. Inspired by the Kanban system, Flexity provides a structured way to organize information into recursively composable objects that can be viewed as knowledge outlines, idea or project trackers, SOPs, or other interpretations without changing the underlying data.
+
+## Why multi-dimensional?
+
+Traditional note-taking is **one-dimensional**: information flows linearly in a file, and the viewer must scroll up and down to find things. Kanban boards and spreadsheets are **two-dimensional**: they add a horizontal axis (columns/fields) alongside the vertical axis (cards/rows), making lookup faster. But even 2D systems treat each card or cell as a flat container.
+
+Flexity adds a **third dimension: depth.** Trays nest inside trays, notes stack inside notes — each layer of ownership is another axis. This means information lives at a specific *location* in a multi-dimensional space, not just at a line number. The user can zoom in for detail or pull back for overview, without losing context.
+
+```
+Dimension 0: Board (root)
+Dimension 1: Horizontal — columns, trays side by side
+Dimension 2: Vertical — cards, notes within a column/tray
+Dimension 3+: Depth — nesting (trays inside trays, notes inside notes)
+```
 
 ## Core model
 

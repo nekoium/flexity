@@ -136,6 +136,7 @@
       else node.body = `**${node.title}**`;
       delete node.title;
     }
+    if (node.type === "note" && node.folded == null) node.folded = false;
     (node.children || []).forEach(migrateNotes);
   }
 
@@ -161,32 +162,32 @@
       children: [
         // The only column — a pinned "Today" slot.
         { type: "column", title: "Today", folded: false, children: [
-          { type: "note", body: "**Write landing copy**\n\nHero, features, CTA.\n\nSee [[@Ship demo]] for scope.", highlighted: true, shadowOf: null, children: [] },
-          { type: "note", body: "**Ship demo**\n\nWire the board engine.", highlighted: false, shadowOf: null, children: [
-            { type: "note", body: "**Drag & drop**\n\nReorder + move between trays.", highlighted: false, shadowOf: null, children: [] },
-            { type: "note", body: "**Undo stack**\n\nCtrl+Z everywhere.", highlighted: false, shadowOf: null, children: [] }
+          { type: "note", folded: false, body: "**Write landing copy**\n\nHero, features, CTA.\n\nSee [[@Ship demo]] for scope.", highlighted: true, shadowOf: null, children: [] },
+          { type: "note", folded: false, body: "**Ship demo**\n\nWire the board engine.", highlighted: false, shadowOf: null, children: [
+            { type: "note", folded: false, body: "**Drag & drop**\n\nReorder + move between trays.", highlighted: false, shadowOf: null, children: [] },
+            { type: "note", folded: false, body: "**Undo stack**\n\nCtrl+Z everywhere.", highlighted: false, shadowOf: null, children: [] }
           ]}
         ]},
         // Root trays — the flexible majority.
         { type: "tray", title: "Next", folded: false, highlighted: false, shadowOf: null, children: [
-          { type: "note", body: "**Draft Q3 roadmap**\n\nThree themes:\n\n1. Performance\n2. Onboarding\n3. Mobile\n\nSee [planning doc](https://example.com).", highlighted: false, shadowOf: null, children: [
-            { type: "note", body: "**Scope each theme**\n\n1-page brief per theme.", highlighted: false, shadowOf: null, children: [] }
+          { type: "note", folded: false, body: "**Draft Q3 roadmap**\n\nThree themes:\n\n1. Performance\n2. Onboarding\n3. Mobile\n\nSee [planning doc](https://example.com).", highlighted: false, shadowOf: null, children: [
+            { type: "note", folded: false, body: "**Scope each theme**\n\n1-page brief per theme.", highlighted: false, shadowOf: null, children: [] }
           ]},
-          { type: "note", body: "**Migrate docs**\n\nMove the old wiki into the new vault.", highlighted: false, shadowOf: null, children: [] }
+          { type: "note", folded: false, body: "**Migrate docs**\n\nMove the old wiki into the new vault.", highlighted: false, shadowOf: null, children: [] }
         ]},
         { type: "tray", title: "Polish", folded: false, highlighted: false, shadowOf: null, children: [
-          { type: "note", body: "**Shadows**\n\nPointer refs across trays.\nHover a host & its shadow to see the pair.", highlighted: false, shadowOf: null, children: [] },
-          { type: "note", body: "**Markdown notes**\n\nRender **bold**, *italic*, `code`, and [links](https://example.com).", highlighted: false, shadowOf: null, children: [] }
+          { type: "note", folded: false, body: "**Shadows**\n\nPointer refs across trays.\nHover a host & its shadow to see the pair.", highlighted: false, shadowOf: null, children: [] },
+          { type: "note", folded: false, body: "**Markdown notes**\n\nRender **bold**, *italic*, `code`, and [links](https://example.com).", highlighted: false, shadowOf: null, children: [] }
         ]},
         { type: "tray", title: "Waiting", folded: false, highlighted: false, shadowOf: null, children: [
-          { type: "note", body: "**Vendor contract**\n\nOn legal since *Monday*.", highlighted: false, shadowOf: null, children: [] }
+          { type: "note", folded: false, body: "**Vendor contract**\n\nOn legal since *Monday*.", highlighted: false, shadowOf: null, children: [] }
         ]},
         { type: "tray", title: "Someday", folded: false, highlighted: false, shadowOf: null, children: [
-          { type: "note", body: "**Learn Rust**", highlighted: false, shadowOf: null, children: [] },
-          { type: "note", body: "**Write a CLI tool**", highlighted: false, shadowOf: null, children: [] }
+          { type: "note", folded: false, body: "**Learn Rust**", highlighted: false, shadowOf: null, children: [] },
+          { type: "note", folded: false, body: "**Write a CLI tool**", highlighted: false, shadowOf: null, children: [] }
         ]},
         { type: "tray", title: "Done", folded: false, highlighted: false, shadowOf: null, children: [
-          { type: "note", body: "**JSON model**\n\nDefined board / column / tray / note.", highlighted: false, shadowOf: null, children: [] }
+          { type: "note", folded: false, body: "**JSON model**\n\nDefined board / column / tray / note.", highlighted: false, shadowOf: null, children: [] }
         ]}
       ]
     };
@@ -196,7 +197,7 @@
     const shipDemo = today.children[1];
     const done = board.children[5];
     done.children.push({
-      id: uid("note"), type: "note", body: shipDemo.body,
+      id: uid("note"), type: "note", folded: false, body: shipDemo.body,
       highlighted: false, shadowOf: shipDemo.id, children: []
     });
     return { board };
@@ -285,22 +286,6 @@
       stackEls.push(stack);
     });
 
-    // Add-tray affordance — appended to the last tray stack so it follows
-    // the masonry layout. If no trays exist, create a stack for it.
-    const add = document.createElement("a");
-    add.href = "#";
-    add.className = "add-tray";
-    add.innerHTML = "+ Add tray";
-    add.addEventListener("click", (e) => { e.preventDefault(); addTray(); });
-    if (stackEls.length > 0) {
-      stackEls[stackEls.length - 1].appendChild(add);
-    } else {
-      const stack = document.createElement("div");
-      stack.className = "tray-stack";
-      stack.appendChild(add);
-      boardEl.appendChild(stack);
-    }
-
     syncShadowBodies();
     updateJSON();
   }
@@ -321,6 +306,10 @@
     el.className = "column" + (col.folded ? " is-folded" : "");
     el.dataset.id = col.id;
     el.setAttribute("aria-label", col.title);
+
+    el.draggable = true;
+    attachShadowHover(el, col);
+    attachNoteDrag(el, col);
 
     // Head
     const head = document.createElement("div");
@@ -374,15 +363,11 @@
     });
     el.appendChild(body);
 
-    // Foot — add note
-    const foot = document.createElement("div");
-    foot.className = "column__foot";
-    const addBtn = document.createElement("button");
-    addBtn.className = "add-btn";
-    addBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg> Add note';
-    addBtn.addEventListener("click", () => addNote(col));
-    foot.appendChild(addBtn);
-    el.appendChild(foot);
+    // Ctrl+click on head adds a note
+    head.addEventListener("click", (e) => {
+      if (e.target.closest(".column__menu") || e.target.closest(".column__title") || e.target.closest(".column__fold")) return;
+      if (e.ctrlKey || e.metaKey) { e.preventDefault(); addNote(col); }
+    });
 
     return el;
   }
@@ -431,7 +416,6 @@
     const menu = document.createElement("div");
     menu.className = "tray__menu";
     if (!tray.shadowOf) {
-      menu.appendChild(iconButton("", "🔗", "Add reference", () => addReference(tray)));
       if (isRoot) menu.appendChild(iconButton("", "⇄", "Switch to column", () => switchRootType(tray.id)));
     }
     menu.appendChild(iconButton("", "✕", "Delete tray", () => deleteNode(tray.id)));
@@ -456,15 +440,12 @@
     });
     el.appendChild(body);
 
-    // Foot — add note
-    const foot = document.createElement("div");
-    foot.className = "tray__foot";
-    const addBtn = document.createElement("button");
-    addBtn.className = "add-btn";
-    addBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg> Add note';
-    addBtn.addEventListener("click", () => addNote(tray));
-    foot.appendChild(addBtn);
-    el.appendChild(foot);
+    // Ctrl+click on head adds a note
+    head.addEventListener("click", (e) => {
+      if (e.target.closest(".tray__menu") || e.target.closest(".tray__title") || e.target.closest(".tray__fold")) return;
+      if (tray.shadowOf) return;
+      if (e.ctrlKey || e.metaKey) { e.preventDefault(); addNote(tray); }
+    });
 
     return el;
   }
@@ -507,11 +488,19 @@
     }
     el.appendChild(body);
 
+    // Fold indicator — only for notes with sub-notes. A note is foldable
+    // only when it actually hosts children (matches column/tray semantics).
+    if (!note.shadowOf && (note.children || []).some((k) => k.type === "note")) {
+      const fold = iconButton("note__fold", note.folded ? "▸" : "▾", "Fold note",
+        () => { pushHistory(); note.folded = !note.folded; save(); render(); });
+      el.appendChild(fold);
+      if (note.folded) el.classList.add("is-folded");
+    }
+
     // Menu — hover toolbar, absolutely positioned top-right
     const menu = document.createElement("div");
     menu.className = "note__menu";
     if (!note.shadowOf) {
-      menu.appendChild(iconButton("", "🔗", "Add reference", () => addReference(note)));
       if (isRoot) menu.appendChild(iconButton("", "⇄", "Switch to column", () => switchRootType(note.id)));
     }
     menu.appendChild(iconButton("", "✕", "Delete note", () => deleteNode(note.id)));
@@ -520,16 +509,17 @@
     group.appendChild(el);
 
     // Sub-notes: siblings of the note article (stacked below with
-    // indentation), NOT nested inside it.
-    const kids = note.children || [];
-    if (kids.length) {
-      const subs = document.createElement("div");
-      subs.className = "note-subs";
-      kids.forEach((k) => {
-        if (k.type === "tray") subs.appendChild(renderTray(k, false));
-        else subs.appendChild(renderNote(k, false));
-      });
-      group.appendChild(subs);
+    // indentation), NOT nested inside it. Notes can only host other
+    // notes — trays are never rendered as children of a note. Hidden
+    // when the parent is folded.
+    if (!note.folded) {
+      const kids = (note.children || []).filter((k) => k.type === "note");
+      if (kids.length) {
+        const subs = document.createElement("div");
+        subs.className = "note-subs";
+        kids.forEach((k) => subs.appendChild(renderNote(k, false)));
+        group.appendChild(subs);
+      }
     }
 
     // Ctrl+click adds sub-note · Alt+click toggles highlight
@@ -601,10 +591,20 @@
     if (el) { el.focus(); selectAll(el); }
   }
 
+  function addColumn() {
+    pushHistory();
+    state.board.children = state.board.children || [];
+    const col = { id: uid("column"), type: "column", title: "New column", folded: false, children: [] };
+    state.board.children.push(col);
+    save(); render();
+    const el = boardEl.querySelector(`.column[data-id="${col.id}"] .column__title`);
+    if (el) { el.focus(); selectAll(el); }
+  }
+
   function addNote(col) {
     pushHistory();
     col.children = col.children || [];
-    const note = { id: uid("note"), type: "note", body: "", highlighted: false, shadowOf: null, children: [] };
+    const note = { id: uid("note"), type: "note", folded: false, body: "", highlighted: false, shadowOf: null, children: [] };
     col.children.push(note);
     if (col.folded) col.folded = false;
     save(); render();
@@ -614,7 +614,7 @@
   function addSubNote(parent) {
     pushHistory();
     parent.children = parent.children || [];
-    const note = { id: uid("note"), type: "note", body: "", highlighted: false, shadowOf: null, children: [] };
+    const note = { id: uid("note"), type: "note", folded: false, body: "", highlighted: false, shadowOf: null, children: [] };
     parent.children.push(note);
     save(); render();
     autoEditNote(note);
@@ -681,7 +681,7 @@
     pushHistory();
     target.children = target.children || [];
     target.children.push({
-      id: uid("note"), type: "note", body: host.body || "",
+      id: uid("note"), type: "note", folded: false, body: host.body || "",
       highlighted: false, shadowOf: host.id, children: []
     });
     save(); render();
@@ -736,7 +736,7 @@
   }
 
   // ---------------------------------------------------------------------
-  // Reference link clicks (delegated)
+  // Reference link clicks + hovers (delegated)
   // ---------------------------------------------------------------------
   boardEl.addEventListener("click", (e) => {
     const ref = e.target.closest(".ref-link");
@@ -749,6 +749,25 @@
     targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
     targetEl.classList.add("is-shadow-pair");
     setTimeout(() => targetEl.classList.remove("is-shadow-pair"), 1400);
+  });
+  // Highlight the referenced note on hover over a [[@Name]] link.
+  boardEl.addEventListener("mouseover", (e) => {
+    const ref = e.target.closest(".ref-link");
+    if (!ref) return;
+    const name = ref.dataset.ref;
+    const target = allNotes().find((c) => noteName(c) === name);
+    if (!target) return;
+    const targetEl = boardEl.querySelector(`.note[data-id="${target.id}"]`);
+    if (targetEl) targetEl.classList.add("is-shadow-pair");
+  });
+  boardEl.addEventListener("mouseout", (e) => {
+    const ref = e.target.closest(".ref-link");
+    if (!ref) return;
+    const name = ref.dataset.ref;
+    const target = allNotes().find((c) => noteName(c) === name);
+    if (!target) return;
+    const targetEl = boardEl.querySelector(`.note[data-id="${target.id}"]`);
+    if (targetEl) targetEl.classList.remove("is-shadow-pair");
   });
 
   // ---------------------------------------------------------------------
@@ -777,7 +796,6 @@
   }, true);
 
   function attachNoteDrag(el, note) {
-    if (note.shadowOf) { el.draggable = false; return; }
     el.addEventListener("dragstart", (e) => {
       e.stopPropagation();
       dragId = note.id;
@@ -800,15 +818,108 @@
     });
   }
 
-  function attachColumnDrop(bodyEl, col) {
-    bodyEl.addEventListener("dragover", (e) => {
+  // Board-level drop: allows dragging a tray/note into the blank board
+  // space so it can escape its parent and become a root child.
+  // Also handles Ctrl+click on board blank space to add a tray.
+  function attachBoardDrop() {
+    boardEl.addEventListener("click", (e) => {
+      // Only fire on the board's own blank space, not on child elements.
+      if (e.target !== boardEl) return;
+      if (e.ctrlKey || e.metaKey) { e.preventDefault(); addTray(); }
+    });
+    boardEl.addEventListener("dragover", (e) => {
       if (!dragId) return;
       e.preventDefault();
       e.dataTransfer.dropEffect = isShadowCast ? "copy" : "move";
+      if (!isShadowCast) {
+        boardEl.querySelectorAll(".note.is-over").forEach((n) => n.classList.remove("is-over"));
+        const index = computeBoardChildIndex(e.clientX);
+        showBoardIndicator(boardEl, index);
+      }
+    });
+    boardEl.addEventListener("dragleave", (e) => {
+      if (!boardEl.contains(e.relatedTarget)) {
+        clearIndicator();
+      }
+    });
+    boardEl.addEventListener("drop", (e) => {
+      if (!dragId) return;
+      e.preventDefault();
+      e.stopPropagation();
+      clearIndicator();
+      if (isShadowCast) {
+        const host = findNode(dragId);
+        if (host) {
+          pushHistory();
+          state.board.children.push({
+            id: uid("note"), type: "note", folded: false, body: host.body || "",
+            highlighted: false, shadowOf: host.id, children: []
+          });
+          save(); render();
+        }
+        isShadowCast = false;
+      } else {
+        const index = computeBoardChildIndex(e.clientX);
+        moveNote(dragId, state.board, index, false);
+      }
+    });
+  }
+
+  // Compute insertion index among board root children by finding the first
+  // root child whose horizontal midpoint is to the right of the cursor.
+  function computeBoardChildIndex(clientX) {
+    const root = state.board.children || [];
+    for (let i = 0; i < root.length; i++) {
+      const el = boardEl.querySelector(`[data-id="${root[i].id}"]`);
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (clientX < r.left + r.width / 2) return i;
+    }
+    return root.length;
+  }
+
+  // Vertical drop indicator for the board (between root children).
+  function showBoardIndicator(containerEl, index) {
+    clearIndicator();
+    const root = state.board.children || [];
+    // Build element list from root children's DOM nodes.
+    const items = root.map((c) => boardEl.querySelector(`[data-id="${c.id}"]`)).filter(Boolean);
+    const ind = document.createElement("div");
+    ind.className = "drop-indicator drop-indicator--v";
+    const HALF_GAP = 8; // half of var(--sp-4)
+    let left;
+    if (items.length === 0 || index >= items.length) {
+      const last = items[items.length - 1];
+      left = last ? last.offsetLeft + last.offsetWidth + HALF_GAP : HALF_GAP;
+    } else {
+      const target = items[index];
+      const prev = items[index - 1];
+      if (prev) {
+        left = (prev.offsetLeft + prev.offsetWidth + target.offsetLeft) / 2;
+      } else {
+        left = Math.max(target.offsetLeft - HALF_GAP, HALF_GAP);
+      }
+    }
+    ind.style.left = left + "px";
+    containerEl.appendChild(ind);
+    dropIndicator = ind;
+  }
+
+  function attachColumnDrop(bodyEl, col) {
+    bodyEl.addEventListener("dragover", (e) => {
+      if (!dragId) return;
+      // Only block cycles: dragged must not be an ancestor of col.
+      // (Dropping back into the current parent is allowed — it's a no-op.)
+      if (dragId === col.id || isDescendant(dragId, col.id)) return;
+      // Columns can only be root children — reject dropping a column into
+      // another column or tray.
+      const dragged = findNode(dragId);
+      if (dragged && dragged.type === "column") return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = isShadowCast ? "copy" : "move";
       bodyEl.parentElement.classList.add("is-over");
       if (!isShadowCast) {
-        // Clear note-level nesting highlights — only the reorder indicator
-        // should be visible when hovering in the gap between items.
         boardEl.querySelectorAll(".note.is-over").forEach((n) => n.classList.remove("is-over"));
         const index = computeIndex(bodyEl, e.clientY);
         showIndicator(bodyEl, index);
@@ -822,6 +933,9 @@
     });
     bodyEl.addEventListener("drop", (e) => {
       if (!dragId) return;
+      if (dragId === col.id || isDescendant(dragId, col.id)) return;
+      const dragged = findNode(dragId);
+      if (dragged && dragged.type === "column") return;
       e.preventDefault();
       e.stopPropagation();
       if (isShadowCast) {
@@ -840,8 +954,12 @@
   function attachNoteDrop(el, note) {
     el.addEventListener("dragover", (e) => {
       if (!dragId || dragId === note.id) return;
-      // Prevent dropping onto a descendant OR an ancestor (avoids cycles).
-      if (!isShadowCast && (isDescendant(note.id, dragId) || isDescendant(dragId, note.id))) return;
+      // Notes can only host other notes — reject trays and columns.
+      const dragged = findNode(dragId);
+      if (!dragged || dragged.type === "tray" || dragged.type === "column") return;
+      // Only block cycles: dragged must not be an ancestor of note.
+      // (Dropping back into the current parent note is allowed — no-op.)
+      if (!isShadowCast && isDescendant(dragId, note.id)) return;
       e.preventDefault();
       e.stopPropagation();
       e.dataTransfer.dropEffect = isShadowCast ? "copy" : "move";
@@ -852,7 +970,9 @@
     el.addEventListener("dragleave", () => el.classList.remove("is-over"));
     el.addEventListener("drop", (e) => {
       if (!dragId || dragId === note.id) return;
-      if (!isShadowCast && (isDescendant(note.id, dragId) || isDescendant(dragId, note.id))) return;
+      const dragged = findNode(dragId);
+      if (!dragged || dragged.type === "tray" || dragged.type === "column") return;
+      if (!isShadowCast && isDescendant(dragId, note.id)) return;
       e.preventDefault();
       e.stopPropagation();
       el.classList.remove("is-over");
@@ -917,15 +1037,24 @@
     dropIndicator = null;
   }
 
-  // Move a note to a new parent (column, tray, or note) at an index. If
-  // nest=true, append to the target note's children.
+  // Move a node (note or tray) to a new parent at an index. If nest=true,
+  // append to the target's children. Safety: refuses to create a cycle
+  // (moving a node into itself or its own descendant). A no-op drop (same
+  // parent, same position) is detected and bails without recording history.
   function moveNote(id, target, index, nest = false) {
     const parent = findParent(id);
     if (!parent || !parent.children) return;
     const node = parent.children.find((c) => c.id === id);
     if (!node) return;
-    if (nest && target.id === id) return;
-    // If moving within the same parent and not nesting, adjust index.
+    if (target.id === id || isDescendant(id, target.id)) return; // cycle guard
+    // No-op: same parent, same position — user dragged and dropped back.
+    if (parent === target && !nest) {
+      const curIdx = parent.children.findIndex((c) => c.id === id);
+      let i = index == null ? parent.children.length : index;
+      if (i > curIdx) i -= 1; // account for removal
+      if (i === curIdx || i === curIdx + 1 && index > curIdx) return; // no change
+    }
+    if (parent === target && nest) return; // already a child of target
     pushHistory();
     parent.children = parent.children.filter((c) => c.id !== id);
     if (nest) {
@@ -988,7 +1117,42 @@
   // ---------------------------------------------------------------------
   // Toolbar wiring
   // ---------------------------------------------------------------------
-  document.getElementById("btn-add-tray").addEventListener("click", addTray);
+  // Add menu — dropdown (not a modal popup) for choosing tray or column.
+  const btnAdd = document.getElementById("btn-add-tray");
+  let addMenu = null;
+  function closeAddMenu() {
+    if (addMenu) { addMenu.remove(); addMenu = null; }
+    document.removeEventListener("click", onDocClick);
+    document.removeEventListener("keydown", onDocKey);
+  }
+  function onDocClick(e) { if (addMenu && !addMenu.contains(e.target) && e.target !== btnAdd) closeAddMenu(); }
+  function onDocKey(e) { if (e.key === "Escape") closeAddMenu(); }
+  btnAdd.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (addMenu) { closeAddMenu(); return; }
+    addMenu = document.createElement("div");
+    addMenu.className = "menu-dropdown";
+    const items = [
+      { label: "Add tray", sub: "Flexible, stackable container", choose: addTray },
+      { label: "Add column", sub: "Full-height pinned slot", choose: addColumn }
+    ];
+    items.forEach((it) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "menu-dropdown__item";
+      b.innerHTML = `<span>${it.label}</span>${it.sub ? `<span class="sub">${it.sub}</span>` : ""}`;
+      b.addEventListener("click", () => { closeAddMenu(); it.choose(); });
+      addMenu.appendChild(b);
+    });
+    // Position below the button.
+    const rect = btnAdd.getBoundingClientRect();
+    addMenu.style.position = "fixed";
+    addMenu.style.top = (rect.bottom + 4) + "px";
+    addMenu.style.right = (window.innerWidth - rect.right) + "px";
+    document.body.appendChild(addMenu);
+    document.addEventListener("click", onDocClick);
+    document.addEventListener("keydown", onDocKey);
+  });
   document.getElementById("btn-reset").addEventListener("click", resetBoard);
   document.getElementById("kbd-undo").addEventListener("click", undo);
   document.getElementById("kbd-redo").addEventListener("click", redo);
@@ -1034,6 +1198,7 @@
   // ---------------------------------------------------------------------
   // Init
   // ---------------------------------------------------------------------
+  attachBoardDrop();
   render();
   // Re-render on resize so masonry groups recalculate.
   let resizeTimer = null;
